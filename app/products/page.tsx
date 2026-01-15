@@ -1,0 +1,225 @@
+"use client"
+
+import { useState } from "react"
+import { Search, Menu, Package, ShoppingCart, Star, TrendingUp } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+import { ProductsSidebar } from "@/components/products-sidebar"
+import { LanguageSelector } from "@/components/language-selector"
+import { ProductCard } from "@/components/product-card"
+import { mockProducts } from "@/lib/product-data"
+import { useLanguage } from "@/contexts/language-context"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Badge } from "@/components/ui/badge"
+
+export default function ProductsPage() {
+  const { t } = useLanguage()
+  const [searchQuery, setSearchQuery] = useState("")
+  const [activeCategory, setActiveCategory] = useState<string>("all")
+
+  const filteredProducts = mockProducts.filter((product) => {
+    const matchesSearch =
+      product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesCategory = activeCategory === "all" || product.category === activeCategory
+
+    return matchesSearch && matchesCategory
+  })
+
+  const categoryCounts = {
+    electronics: mockProducts.filter((p) => p.category === "electronics").length,
+    fashion: mockProducts.filter((p) => p.category === "fashion").length,
+    industrial: mockProducts.filter((p) => p.category === "industrial").length,
+    food: mockProducts.filter((p) => p.category === "food").length,
+  }
+
+  return (
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full bg-gradient-to-br from-violet-50/50 via-white to-purple-50/30">
+        <ProductsSidebar />
+        <div className="flex-1 flex flex-col">
+          <header className="sticky top-0 z-40 border-b border-purple-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/90 shadow-sm">
+            <div className="flex h-16 items-center gap-3 px-4 md:px-6">
+              <SidebarTrigger className="lg:hidden">
+                <Button variant="outline" size="icon" className="border-purple-300 bg-white">
+                  <Menu className="h-5 w-5 text-purple-600" />
+                </Button>
+              </SidebarTrigger>
+              <div className="flex flex-1 items-center gap-3">
+                <div className="relative flex-1 max-w-2xl">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-purple-400" />
+                  <Input
+                    type="search"
+                    placeholder="Search products, electronics, machinery, fashion..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 bg-white border border-purple-200 focus:border-purple-400 focus:ring-purple-300 text-gray-900 placeholder:text-gray-500"
+                  />
+                </div>
+              </div>
+              <LanguageSelector />
+            </div>
+          </header>
+
+          <main className="flex-1 p-4 md:p-6 space-y-6 overflow-auto">
+            <section className="relative overflow-hidden rounded-xl border border-purple-200 bg-gradient-to-br from-white via-purple-50/50 to-white p-6 md:p-10 shadow-lg">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-purple-100/50 via-transparent to-transparent" />
+              <div className="relative z-10 max-w-3xl">
+                <div className="flex items-center gap-3 mb-4">
+                  <Package className="h-10 w-10 text-purple-600" />
+                  <h1 className="text-3xl font-bold text-balance md:text-4xl lg:text-5xl text-purple-900">
+                    Global Trade Market
+                  </h1>
+                </div>
+                <p className="mb-2 text-lg text-gray-900 text-pretty md:text-xl font-semibold">
+                  Fast, Secure B2B/B2C Commerce
+                </p>
+                <p className="mb-6 text-gray-600 text-pretty leading-relaxed">
+                  Direct access to factories, suppliers, and distributors. From electronics to industrial machinery,
+                  fashion to food - eliminating intermediaries through Pi Blockchain.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <Button
+                    size="lg"
+                    className="bg-purple-600 text-white hover:bg-purple-700 shadow-lg shadow-purple-600/30 font-bold"
+                  >
+                    Browse Categories
+                  </Button>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="border-2 border-purple-600 bg-transparent hover:bg-purple-100 font-bold text-purple-600"
+                  >
+                    View Trending
+                  </Button>
+                </div>
+              </div>
+            </section>
+
+            <div className="flex items-center gap-4 flex-wrap">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-purple-200 shadow-sm">
+                <TrendingUp className="h-5 w-5 text-purple-600" />
+                <span className="text-sm font-semibold text-gray-900">Trending Now</span>
+              </div>
+              <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-100 border border-purple-300">
+                <Star className="h-5 w-5 text-purple-600 fill-purple-600" />
+                <span className="text-sm font-semibold text-purple-900">Top Rated</span>
+              </div>
+              <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-purple-200 shadow-sm">
+                <ShoppingCart className="h-5 w-5 text-purple-600" />
+                <span className="text-sm font-semibold text-gray-900">Fast Shipping</span>
+              </div>
+            </div>
+
+            <Tabs value={activeCategory} onValueChange={setActiveCategory} className="w-full">
+              <TabsList className="grid w-full grid-cols-5 bg-white border border-purple-200 shadow-sm p-1 h-auto">
+                <TabsTrigger
+                  value="all"
+                  className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-700 font-semibold"
+                >
+                  All Products
+                  <Badge className="ml-2 bg-purple-100 text-purple-900 border-purple-200">{mockProducts.length}</Badge>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="electronics"
+                  className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-700 font-semibold"
+                >
+                  Electronics
+                  <Badge className="ml-2 bg-purple-100 text-purple-900 border-purple-200">
+                    {categoryCounts.electronics}
+                  </Badge>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="fashion"
+                  className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-700 font-semibold"
+                >
+                  Fashion
+                  <Badge className="ml-2 bg-purple-100 text-purple-900 border-purple-200">
+                    {categoryCounts.fashion}
+                  </Badge>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="industrial"
+                  className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-700 font-semibold"
+                >
+                  Industrial
+                  <Badge className="ml-2 bg-purple-100 text-purple-900 border-purple-200">
+                    {categoryCounts.industrial}
+                  </Badge>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="food"
+                  className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-700 font-semibold"
+                >
+                  Food
+                  <Badge className="ml-2 bg-purple-100 text-purple-900 border-purple-200">{categoryCounts.food}</Badge>
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="all" className="mt-6">
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-purple-900">All Products</h2>
+                  <p className="text-sm text-gray-600">{filteredProducts.length} products available</p>
+                </div>
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {filteredProducts.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="electronics" className="mt-6">
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-purple-900">Electronics & Tech</h2>
+                  <p className="text-sm text-gray-600">{filteredProducts.length} products</p>
+                </div>
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {filteredProducts.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="fashion" className="mt-6">
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-purple-900">Fashion & Apparel</h2>
+                  <p className="text-sm text-gray-600">{filteredProducts.length} products</p>
+                </div>
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {filteredProducts.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="industrial" className="mt-6">
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-purple-900">Industrial Equipment</h2>
+                  <p className="text-sm text-gray-600">{filteredProducts.length} products</p>
+                </div>
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {filteredProducts.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="food" className="mt-6">
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-purple-900">Food & Beverages</h2>
+                  <p className="text-sm text-gray-600">{filteredProducts.length} products</p>
+                </div>
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {filteredProducts.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+              </TabsContent>
+            </Tabs>
+          </main>
+        </div>
+      </div>
+    </SidebarProvider>
+  )
+}
